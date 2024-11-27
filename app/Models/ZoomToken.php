@@ -5,18 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Profile extends Model
+class ZoomToken extends Model
 {
     use HasFactory;
 
-    protected $table = 'profiles';
+    protected $table = 'zoom_tokens';
 
     protected $fillable = [
         'user_id',
-        'perusahaan',
-        'alamat',
-        'no_telp',
-        'jenis_kelamin',
+        'access_token',
+        'refresh_token',
+        'expires_at',
     ];
 
     public function user()

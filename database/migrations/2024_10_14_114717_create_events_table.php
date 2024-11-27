@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('nama_lengkap')->nullable();
             $table->string('perusahaan')->nullable();
             $table->string('jenis_konsultasi');
+            $table->integer('durasi_konsultasi');
             $table->text('deskripsi');
             $table->string('google_event_id')->nullable();
             $table->string('zoom_link')->nullable();

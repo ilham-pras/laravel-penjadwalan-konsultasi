@@ -12,7 +12,7 @@
       </div>
       <div class="page-content">
         <section class="row">
-          <div class="col-12 col-lg-9">
+          <div class="col-12 col-lg-8">
             <div class="row">
               <div class="col-12">
                 @if (session('status'))
@@ -30,11 +30,25 @@
                       <p>Halo, Selamat datang {{ Auth::user()->name }}</p>
                       @if (auth()->user()->google_id == null)
                         <div class=" py-2">
-                          <p>Anda belum terhubung dengan google calendar.</p>
-                          <a href="{{ route('google.login') }}" class="btn btn-primary">Connect Google Account</a>
+                          <p>Anda belum terhubung dengan Google Calendar.</p>
+                          <a href="{{ route('google.login') }}" class="btn btn-primary">Hubungkan Google Calendar</a>
                         </div>
                       @else
-                        Anda sudah terhubung dengan google calendar.
+                        Anda sudah terhubung dengan Google Calendar.
+                      @endif
+
+                      @php
+                        $zoomToken = DB::table('zoom_tokens')
+                            ->where('user_id', auth()->user()->id)
+                            ->first();
+                      @endphp
+                      @if (!$zoomToken)
+                        <div class="py-2">
+                          <p>Anda belum terhubung dengan Zoom.</p>
+                          <a href="{{ route('zoom.connect') }}" class="btn btn-primary">Hubungkan Zoom</a>
+                        </div>
+                      @else
+                        <p>Anda sudah terhubung dengan Zoom.</p>
                       @endif
                     @elseif (auth()->user()->role === 'user')
                       <p>Halo, Selamat datang {{ Auth::user()->name }}</p>
@@ -45,10 +59,10 @@
             </div>
           </div>
 
-          <div class="col-12 col-lg-3">
+          <div class="col-12 col-lg-4">
             <div class="card">
-              <div class="card-header pb-2 bg-light">
-                <h4>Jadwal Konsultasi</h4>
+              <div class="card-header pb-2 bg-primary">
+                <h4 class="text-white">Jadwal Konsultasi</h4>
               </div>
               <div class="card-content pb-2" style="max-height: 600px; overflow-y: auto;">
                 @if (count($events) > 0)

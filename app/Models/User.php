@@ -23,9 +23,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
-        'perusahaan',
-        'alamat',
-        'no_telp',
         'google_id',
         'google_access_token',
         'google_refresh_token',
@@ -49,4 +46,15 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
+
+    public function zoom_tokens()
+    {
+        return $this->hasOne(ZoomToken::class);
+    }
+
 }

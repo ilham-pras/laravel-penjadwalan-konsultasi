@@ -4,12 +4,13 @@ use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\KalenderController;
 use App\Http\Controllers\KonsultasiController;
 use App\Http\Controllers\Auth\SocialiteController;
+use App\Http\Controllers\DurasiKonsultasiController;
 use App\Http\Controllers\JamOperasionalController;
+use App\Http\Controllers\ZoomController;
 use Illuminate\Foundation\Auth\EmailVerificationNotification;
 
 
@@ -24,6 +25,10 @@ use Illuminate\Foundation\Auth\EmailVerificationNotification;
 |
 */
 
+// Route::get('/zoom/callback', [KalenderController::class, 'handleCallback']);
+Route::get('/zoom/connect', [ZoomController::class, 'redirectToZoom'])->name('zoom.connect');
+Route::get('/zoom/callback', [ZoomController::class, 'handleZoomCallback'])->name('zoom.callback');
+
 
 Auth::routes(['verify' => true]);
 
@@ -31,8 +36,7 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/profile/create', [ProfileController::class, 'create'])->name('profile.create');
-Route::post('/profile/store', [ProfileController::class, 'store'])->name('profile.store');
+Route::resource('profile', ProfileController::class);
 
 Route::get('/email/verify', function () {
     return view('auth.verify');
@@ -40,11 +44,13 @@ Route::get('/email/verify', function () {
 
 Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('home');
 
+
 // Admin Route
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::resource('kalender', KalenderController::class);
-    Route::resource('jam', JamOperasionalController::class);
-    Route::resource('konsultasi', KonsultasiController::class);
+    Route::resource('data-penjadwalan/jam', JamOperasionalController::class);
+    Route::resource('data-penjadwalan/jadwal', KonsultasiController::class);
+    Route::resource('data-penjadwalan/jenis', DurasiKonsultasiController::class);
 
     Route::get('/google/login', [SocialiteController::class, 'redirectOnGoogle'])->name('google.login');
     Route::get('/google/redirect', [SocialiteController::class, 'openGoogleAccountDetails'])->name('google.callback');

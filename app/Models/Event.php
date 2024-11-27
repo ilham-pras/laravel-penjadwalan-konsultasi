@@ -20,6 +20,7 @@ class Event extends Model
         'nama_lengkap',
         'perusahaan',
         'jenis_konsultasi',
+        'durasi_konsultasi',
         'deskripsi',
         'google_event_id',
         'zoom_link',

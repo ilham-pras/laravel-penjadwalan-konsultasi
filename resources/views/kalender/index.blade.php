@@ -29,10 +29,13 @@
         <section class="row">
           <div class="col">
             <div class="alert alert-primary">
-              <p>Note: Silahkan klik kalender jika ingin membuat janji temu</p>
+              <p>Note:</p>
+              <p>Silahkan klik kalender jika ingin membuat janji temu.</p>
+              <p>Sesuaikan dengan jam operasional.</p>
             </div>
-            
+
             @include('kalender.jam-operasional')
+            @include('kalender.modal')
 
             <div class="card">
               <div class="card-header">
@@ -47,8 +50,6 @@
         </section>
       </div>
     </div>
-
-    @include('kalender.modal')
 
     <footer>
       <div class="container">
@@ -73,7 +74,9 @@
 
   <script>
     var booking = @json($events);
+    var jamOperasional = @json($jamOperasional);
     var currentUserId = '{{ auth()->user()->id }}';
+    var currentUserRole = "{{ auth()->user()->role }}";
     moment.locale('id');
     var calendar = null;
 
@@ -104,6 +107,7 @@
             nama_lengkap: event.nama_lengkap,
             perusahaan: event.perusahaan,
             jenis_konsultasi: event.jenis_konsultasi,
+            durasi_konsultasi: event.durasi_konsultasi,
             deskripsi: event.deskripsi,
             zoom_link: event.zoom_link,
             backgroundColor: (event.user_id == currentUserId) ? '#198754' : '#435ebe',
@@ -180,10 +184,21 @@
           }
           $('#myEvent').html(myTableBody);
 
+          // Cari jam operasional yang sesuai dengan tanggal yang dipilih
+          var operasional = jamOperasional.find(op => {
+            return clickedDate >= op.tanggal_mulai && clickedDate <= op.tanggal_selesai;
+          });
+          // if (!operasional) {
+          //   Swal.fire('Maaf', 'Tanggal yang dipilih tidak memiliki jam operasional.', 'warning');
+          //   return;
+          // }
 
-          // Inisialisasi Flatpickr
-          const defaultTime = "09:00";
+          const minTime = moment(operasional.jam_mulai, 'HH:mm:ss').format('HH:mm');
+          const maxTime = moment(operasional.jam_selesai, 'HH:mm:ss').format('HH:mm');
+
+          const defaultTime = minTime;
           const duration = parseInt($("#jenis_konsultasi option:selected").data("duration")) || 60;
+
           // Menampilkan tanggal dan waktu pada form modal
           var startDate = moment(clickedDate + 'T' + defaultTime);
           var endDate = startDate.clone().add(duration, 'minutes');
@@ -194,11 +209,11 @@
             enableTime: true,
             dateFormat: "Y-m-d H:i",
             time_24hr: true,
+            minTime: minTime,
+            maxTime: maxTime,
             altInput: true,
             altFormat: "j F Y H:i",
             locale: "id",
-            minTime: "09:00",
-            maxTime: "16:00",
             onChange: function(_, dateStr) {
               updateEndDate(dateStr);
             }
@@ -208,6 +223,8 @@
             enableTime: true,
             dateFormat: "Y-m-d H:i",
             time_24hr: true,
+            minTime: minTime,
+            maxTime: maxTime,
             altInput: true,
             altFormat: "j F Y H:i",
             locale: "id",
@@ -215,7 +232,7 @@
           });
 
           // Update waktu selesai saat jenis konsultasi diubah
-          $('#jenis_konsultasi').on('change', function() {
+          $('#jenis_konsultasi').off('change').on('change', function() {
             const startDateStr = $('#tanggalWaktu_mulai').val();
             if (startDateStr) {
               updateEndDate(startDateStr);
@@ -223,6 +240,7 @@
           });
 
           modalReset();
+          $('#eventModalLabel').text('Buat Jadwal Konsultasi');
           $('#saveEventBtn').text('Simpan');
           $('#deleteEventBtn').hide();
 
@@ -246,6 +264,7 @@
               nama_lengkap: $('#nama_lengkap').val(),
               perusahaan: $('#perusahaan').val(),
               jenis_konsultasi: $('#jenis_konsultasi').val(),
+              durasi_konsultasi: $('#durasi_konsultasi').val(),
               deskripsi: $('#deskripsi').val(),
               _token: "{{ csrf_token() }}"
             };
@@ -276,6 +295,7 @@
                     nama_lengkap: response.nama_lengkap,
                     perusahaan: response.perusahaan,
                     jenis_konsultasi: response.jenis_konsultasi,
+                    durasi_konsultasi: response.durasi_konsultasi,
                     deskripsi: response.deskripsi,
                     zoom_link: response.zoom_link
                   },
@@ -304,11 +324,28 @@
               },
             });
           });
+
+          updateEndDate($('#tanggalWaktu_mulai').val());
+
           // Fungsi untuk menghitung dan memperbarui waktu selesai
           function updateEndDate(startDateStr) {
-            const duration = parseInt($("#jenis_konsultasi option:selected").data("duration")) || 60;
+            const selectedOption = $("#jenis_konsultasi option:selected");
+            const selectedDuration = parseInt(selectedOption.data("duration")) || 60;
             const startDate = moment(startDateStr, "YYYY-MM-DD HH:mm");
-            const endDate = startDate.clone().add(duration, 'minutes');
+            const endDate = startDate.clone().add(selectedDuration, 'minutes');
+
+            if (endDate.format('HH:mm') > maxTime) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Waktu Konsultasi Melebihi Batas',
+                text: `Jam selesai konsultasi (${endDate.format('HH:mm')}) melebihi jam operasional (${maxTime}). Silakan pilih waktu yang sesuai.`,
+              });
+
+              // Reset waktu selesai ke batas maksimal
+              endPicker.setDate(moment(clickedDate + 'T' + maxTime).format("YYYY-MM-DD HH:mm"), false, "Y-m-d H:i");
+              return;
+            }
+
             endPicker.setDate(endDate.format("YYYY-MM-DD HH:mm"), false, "Y-m-d H:i");
           }
         },
@@ -362,24 +399,35 @@
         },
         eventClick: function(info) { // Fungsi untuk handle klik pada event
           if (info.event.extendedProps.user_id == currentUserId) {
-            const duration = parseInt($("#jenis_konsultasi option:selected").data("duration")) || 60;
+            const clickedDate = moment(info.event.start).format('YYYY-MM-DD');
+            var operasional = jamOperasional.find(op => {
+              return clickedDate >= op.tanggal_mulai && clickedDate <= op.tanggal_selesai;
+            });
+
+            const minTime = moment(operasional.jam_mulai, 'HH:mm:ss').format('HH:mm');
+            const maxTime = moment(operasional.jam_selesai, 'HH:mm:ss').format('HH:mm');
 
             var startDate = moment(info.event.start);
-            var endDate = startDate.clone().add(duration, 'minutes');
+            var endDate = moment(info.event.end);
+            const duration = parseInt(info.event.extendedProps.durasi_konsultasi) || 60;
+
             $('#tanggalWaktu_mulai').val(startDate.format('YYYY-MM-DD HH:mm'));
             $('#tanggalWaktu_selesai').val(endDate.format('YYYY-MM-DD HH:mm'));
+            $('#nama_lengkap').val(info.event.extendedProps.nama_lengkap);
+            $('#perusahaan').val(info.event.extendedProps.perusahaan);
             $('#jenis_konsultasi').val(info.event.extendedProps.jenis_konsultasi);
+            $('#durasi_konsultasi').val(duration);
             $('#deskripsi').val(info.event.extendedProps.deskripsi);
 
             const startPicker = flatpickr("#tanggalWaktu_mulai", {
               enableTime: true,
               dateFormat: "Y-m-d H:i",
               time_24hr: true,
+              minTime: minTime,
+              maxTime: maxTime,
               altInput: true,
               altFormat: "j F Y H:i",
               locale: "id",
-              minTime: "09:00",
-              maxTime: "16:00",
               onChange: function(_, dateStr) {
                 updateEndDate(dateStr);
               }
@@ -389,13 +437,15 @@
               enableTime: true,
               dateFormat: "Y-m-d H:i",
               time_24hr: true,
+              minTime: minTime,
+              maxTime: maxTime,
               altInput: true,
               altFormat: "j F Y H:i",
               locale: "id",
               allowInput: false,
             });
 
-            $('#jenis_konsultasi').on('change', function() {
+            $('#jenis_konsultasi').off('change').on('change', function() {
               const startDateStr = $('#tanggalWaktu_mulai').val();
               if (startDateStr) {
                 updateEndDate(startDateStr);
@@ -403,6 +453,7 @@
             });
 
             if (info.event.id) {
+              $('#eventModalLabel').text('Edit Jadwal Konsultasi');
               $('#saveEventBtn').text('Simpan Perubahan');
               $('#backToScheduleModal').hide();
               // Fungsi untuk handle penghapusan event
@@ -459,6 +510,7 @@
                 start_date: $('#tanggalWaktu_mulai').val(),
                 end_date: $('#tanggalWaktu_selesai').val(),
                 jenis_konsultasi: $('#jenis_konsultasi').val(),
+                durasi_konsultasi: $('#durasi_konsultasi').val(),
                 deskripsi: $('#deskripsi').val(),
                 _token: "{{ csrf_token() }}"
               };
@@ -482,6 +534,7 @@
                   info.event.setStart(response.start_date);
                   info.event.setEnd(response.end_date);
                   info.event.setExtendedProp('jenis_konsultasi', response.jenis_konsultasi);
+                  info.event.setExtendedProp('durasi_konsultasi', response.durasi_konsultasi);
                   info.event.setExtendedProp('deskripsi', response.deskripsi);
 
                   Swal.fire({
@@ -500,10 +553,25 @@
               });
             });
 
+            updateEndDate($('#tanggalWaktu_mulai').val());
+
             function updateEndDate(startDateStr) {
-              const duration = parseInt($("#jenis_konsultasi option:selected").data("duration")) || 60;
+              const selectedOption = $("#jenis_konsultasi option:selected");
+              const selectedDuration = parseInt(selectedOption.data("duration")) || 60;
               const startDate = moment(startDateStr, "YYYY-MM-DD HH:mm");
-              const endDate = startDate.clone().add(duration, 'minutes');
+              const endDate = startDate.clone().add(selectedDuration, 'minutes');
+
+              if (endDate.format('HH:mm') > maxTime) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Waktu Konsultasi Melebihi Batas',
+                  text: `Jam selesai konsultasi (${endDate.format('HH:mm')}) melebihi jam operasional (${maxTime}). Silakan pilih waktu yang sesuai.`,
+                });
+
+                // Reset waktu selesai ke batas maksimal
+                endPicker.setDate(moment(clickedDate + 'T' + maxTime).format("YYYY-MM-DD HH:mm"), false, "Y-m-d H:i");
+                return;
+              }
 
               endPicker.setDate(endDate.format("YYYY-MM-DD HH:mm"), false, "Y-m-d H:i");
             }
@@ -536,5 +604,11 @@
       $('#deskripsi').val('');
       $('deleteEventBtn').hide();
     }
+
+    document.getElementById('jenis_konsultasi').addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      const duration = selectedOption.getAttribute('data-duration');
+      document.getElementById('durasi_konsultasi').value = duration;
+    });
   </script>
 @endsection

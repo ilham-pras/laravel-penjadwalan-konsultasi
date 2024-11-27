@@ -3,8 +3,15 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+
 use App\Models\User;
+use GuzzleHttp\Client;
+use App\Models\Profile;
+use App\Models\JamOperasional;
+use Illuminate\Database\Seeder;
+use App\Models\DurasiKonsultasi;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,38 +28,61 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
         $users = [
             [
                 'name' => 'Admin IMP',
-                'email' => 'admin.ilham@example.com',
+                'email' => 'gorengpisang196@gmail.com',
                 'password' => bcrypt('admin123'),
                 'role' => 'admin',
-                'perusahaan' => 'FI Studio',
-                'alamat' => 'Karang Ploso',
-                'no_telp' => '081xxxxxxx1',
                 'email_verified_at' => now(),
-            ],
-            [
-                'name' => 'Ilham MP',
-                'email' => 'user.ilham@example.com',
-                'password' => bcrypt('ilham123'),
-                'role' => 'user',
-                'perusahaan' => 'CV. Batu Permata',
-                'alamat' => 'Pandaan',
-                'no_telp' => '081xxxxxxx2',
-            ],
-            [
-                'name' => 'Maulana',
-                'email' => 'user.maulana@example.com',
-                'password' => bcrypt('maulana123'),
-                'role' => 'user',
-                'perusahaan' => 'CV. Batagor',
-                'alamat' => 'Kediri',
-                'no_telp' => '081xxxxxxx3',
             ],
         ];
         foreach ($users as $user) {
             User::create($user);
         }
+
+        $profiles = [
+            [
+                'user_id' => '1',
+                'perusahaan' => 'FI Studio',
+                'alamat' => 'Karang Ploso',
+                'no_telp' => '081xxxxxxx1',
+                'jenis_kelamin' => 'Laki-Laki',
+            ],
+        ];
+        foreach ($profiles as $profile) {
+            Profile::create($profile);
+        }
+
+        $jams = [
+            [
+                'tanggal_mulai' => '2024-11-18',
+                'tanggal_selesai' => '2024-12-08',
+                'hari_mulai' => 'Senin',
+                'hari_selesai' => 'Jumat',
+                'jam_mulai' => '09:00:00',
+                'jam_selesai' => '17:00:00',
+            ],
+        ];
+        foreach ($jams as $jam) {
+            JamOperasional::create($jam);
+        }
+
+        $durasis = [
+            [
+                'konsultasi' => 'Akuntansi',
+                'durasi' => '30',
+            ],
+            [
+                'konsultasi' => 'Sistem Informasi',
+                'durasi' => '60',
+            ],
+        ];
+        foreach ($durasis as $durasi) {
+            DurasiKonsultasi::create($durasi);
+        }
     }
+
+
 }

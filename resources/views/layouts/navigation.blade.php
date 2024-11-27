@@ -1,9 +1,11 @@
-<header class="mb-5">
+<header class="mb-4">
   <div class="header-top">
     <div class="container">
       <div class="row justify-content-start align-items-center">
         <div class="col logo">
-          <a href="index.html"><img src="{{ asset('./assets/compiled/svg/logo.svg') }}" alt="Logo"></a>
+          <a href="{{ route('home') }}">
+            <img src="{{ asset('./assets/compiled/png/logo.png') }}" style="width: 150px; height: auto;" alt="Logo">
+          </a>
         </div>
         {{-- Change theme --}}
         <div class="col theme-toggle d-flex gap-2 align-items-center mt-2">
@@ -38,7 +40,7 @@
           <a href="#" id="topbarUserDropdown" class="user-dropdown d-flex align-items-center dropend dropdown-toggle" data-bs-toggle="dropdown"
             aria-expanded="false">
             <div class="user-menu d-flex">
-              <div class="user-name text-end">
+              <div class="user-name text-end me-2">
                 <h6 class="mb-0 text-gray-600">{{ auth()->user()->name }}</h6>
                 <p class="mb-0 text-sm text-gray-600">
                   @if (auth()->user()->role === 'admin')
@@ -50,11 +52,12 @@
               </div>
             </div>
           </a>
+
           <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="topbarUserDropdown" style="min-width: 11rem">
             <li>
               <h6 class="dropdown-header">Hello, {{ auth()->user()->name }}!</h6>
             </li>
-            <li><a class="dropdown-item" href="#"><i class="icon-mid bi bi-person me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="{{ route('profile.index') }}"><i class="icon-mid bi bi-person me-2"></i>Profile</a></li>
             <li><a class="dropdown-item" href="#"><i class="icon-mid bi bi-gear me-2"></i>Settings</a></li>
             <li>
               <hr class="dropdown-divider">
@@ -80,7 +83,7 @@
       </div>
     </div>
   </div>
-  
+
   <nav class="main-navbar">
     <div class="container">
       <ul>
@@ -96,10 +99,27 @@
             </a>
           </li>
           @if (auth()->user()->role === 'admin')
-            <li class="menu-item">
-              <a href="{{ route('konsultasi.index') }}" class='menu-link'>
+            <li class="menu-item has-sub">
+              <a href="#" class="menu-link">
                 <span><i class="bi bi-table"></i> Data Penjadwalan</span>
               </a>
+              <div class="submenu">
+                <div class="submenu-group-wrapper">
+                  <ul class="submenu-group">
+                    <li class="submenu-item">
+                      <a href="{{ route('jadwal.index') }}" class="submenu-link">Jadwal Konsultasi</a>
+                    </li>
+
+                    <li class="submenu-item">
+                      <a href="{{ route('jam.index') }}" class="submenu-link">Jam Operasional</a>
+                    </li>
+
+                    <li class="submenu-item">
+                      <a href="{{ route('jenis.index') }}" class="submenu-link">Jenis Konsultasi</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </li>
           @endif
         @endif

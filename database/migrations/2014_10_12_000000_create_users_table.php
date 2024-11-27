@@ -19,12 +19,13 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('role')->default('user');
-            $table->string('perusahaan');
-            $table->string('alamat');
-            $table->string('no_telp');
             $table->text('google_id')->nullable();
             $table->text('google_access_token')->nullable();
             $table->text('google_refresh_token')->nullable();
+            // $table->text('zoom_account_id')->nullable();
+            // $table->text('zoom_access_token')->nullable();
+            // $table->text('zoom_refresh_token')->nullable();
+            // $table->timestamp('zoom_token_expires_at')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();

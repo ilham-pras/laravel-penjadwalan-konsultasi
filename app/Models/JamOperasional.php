@@ -14,6 +14,8 @@ class JamOperasional extends Model
     protected $fillable = [
         'tanggal_mulai',
         'tanggal_selesai',
+        'hari_mulai',
+        'hari_selesai',
         'jam_mulai',
         'jam_selesai',
     ];

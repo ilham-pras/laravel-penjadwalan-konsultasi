@@ -6,11 +6,16 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Event;
 use GuzzleHttp\Client;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Models\JamOperasional;
+use App\Models\DurasiKonsultasi;
+use Illuminate\Support\Facades\DB;
 use Google\Client as Google_Client;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\ZoomController;
 use Google\Service\Calendar as Google_Service_Calendar;
 use Google\Service\Calendar\Event as Google_Service_Calendar_Event;
 use Google\Service\Calendar\EventDateTime as Google_Service_Calendar_EventDateTime;
@@ -37,6 +42,20 @@ class KalenderController extends Controller
         $events = [];
         $event = Event::all();
 
+        $profile = Profile::where('user_id', auth()->id())->first();
+        $jamOperasional = JamOperasional::all();
+        $durasiKonsultasi = DurasiKonsultasi::all();
+
+        foreach ($durasiKonsultasi as $jenis) {
+            $jam = floor($jenis->durasi / 60);
+            $menit = $jenis->durasi % 60;
+            if ($jam == 0) {
+                $jenis->formatted_durasi = "{$menit} Menit";
+            } else {
+                $jenis->formatted_durasi = $menit == 0 ? "{$jam} Jam" : "{$jam} Jam {$menit} Menit";
+            }
+        }
+
         foreach ($event as $datajadwal) {
             $events[] = [
                 'id' => $datajadwal->id,
@@ -47,14 +66,14 @@ class KalenderController extends Controller
                 'nama_lengkap' => $datajadwal->nama_lengkap,
                 'perusahaan' => $datajadwal->perusahaan,
                 'jenis_konsultasi' => $datajadwal->jenis_konsultasi,
+                'durasi_konsultasi' => $datajadwal->durasi_konsultasi,
                 'deskripsi' => $datajadwal->deskripsi,
                 'google_event_id' => $datajadwal->google_event_id,
                 'zoom_link' => $datajadwal->zoom_link,
             ];
         }
 
-        $jamOperasional = JamOperasional::all();
-        return view('kalender.index', compact('events', 'jamOperasional'));
+        return view('kalender.index', compact('events', 'jamOperasional', 'profile', 'durasiKonsultasi'));
     }
 
     /**
@@ -69,39 +88,58 @@ class KalenderController extends Controller
 
     private function getZoomAccessToken()
     {
-        $client = new Client();
-        try {
-            $response = $client->post('https://zoom.us/oauth/token', [
-                'headers' => [
-                    'Authorization' => 'Basic ' . base64_encode(env('ZOOM_CLIENT_ID') . ':' . env('ZOOM_CLIENT_SECRET')),
-                ],
-                'form_params' => [
-                    'grant_type' => 'account_credentials',
-                    'account_id' => env('ZOOM_ACCOUNT_ID'),
-                ],
-            ]);
+        $userId = Auth::id(); // Ambil ID user yang sedang login
+        $zoomToken = DB::table('zoom_tokens')->where('user_id', $userId)->first();
 
-            $data = json_decode($response->getBody()->getContents(), true);
-            if (!isset($data['access_token'])) {
-                throw new \Exception('Zoom access token not generated.');
+        if (!$zoomToken || now()->greaterThan($zoomToken->expires_at)) {
+            // Token kadaluarsa, gunakan refresh token untuk memperbarui
+            try {
+                $client = new Client();
+                $response = $client->post('https://zoom.us/oauth/token', [
+                    'headers' => [
+                        'Authorization' => 'Basic ' . base64_encode(env('ZOOM_CLIENT_ID') . ':' . env('ZOOM_CLIENT_SECRET')),
+                        'Content-Type'  => 'application/x-www-form-urlencoded',
+                    ],
+                    'form_params' => [
+                        'grant_type' => 'refresh_token',
+                        'refresh_token' => $zoomToken->refresh_token,
+                    ],
+                ]);
+
+                $data = json_decode($response->getBody()->getContents(), true);
+
+                // Perbarui token di database
+                DB::table('zoom_tokens')->where('user_id', $userId)->update([
+                    'access_token' => $data['access_token'],
+                    'refresh_token' => $data['refresh_token'],
+                    'expires_at' => now()->addSeconds($data['expires_in']),
+                ]);
+
+                return $data['access_token'];
+            } catch (\Exception $e) {
+                Log::error('Error refreshing Zoom token: ' . $e->getMessage());
+                return null;
             }
-
-            return $data['access_token'];
-        } catch (\Exception $e) {
-            Log::error('Error getting Zoom access token: ' . $e->getMessage());
-            return null;
         }
+
+        return $zoomToken->access_token; // Token masih valid
     }
+
+
 
     private function createZoomMeeting($event)
     {
-        $client = new Client();
         $accessToken = $this->getZoomAccessToken();
+
         if (!$accessToken) {
+            Log::error('Failed to get Zoom access token.');
             return null; // Gagal mendapatkan token Zoom, tidak dapat membuat meeting
         }
 
+        $durasi = ($event->durasi_konsultasi ?? 120) + 30;
+
         try {
+            $client = new Client();
             $response = $client->post('https://api.zoom.us/v2/users/me/meetings', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $accessToken,
@@ -110,8 +148,8 @@ class KalenderController extends Controller
                 'json' => [
                     'topic' => $event->nama_lengkap,
                     'type' => 2,  // Scheduled meeting
-                    'start_time' => $event->start_date,
-                    'duration'   => 120,
+                    'start_time' => $event->start_date->toIso8601String(),
+                    'duration'   => $durasi,
                     'timezone' => 'Asia/Jakarta',
                     'settings' => [
                         'host_video' => true,
@@ -150,6 +188,7 @@ class KalenderController extends Controller
             'nama_lengkap' => 'required',
             'perusahaan' => 'required',
             'jenis_konsultasi' => 'required',
+            'durasi_konsultasi' => 'required|integer|min:1',
             'deskripsi' => 'required',
         ]);
 
@@ -165,6 +204,7 @@ class KalenderController extends Controller
             'nama_lengkap' => $request->nama_lengkap,
             'perusahaan' => $request->perusahaan,
             'jenis_konsultasi' => $request->jenis_konsultasi,
+            'durasi_konsultasi' => $request->durasi_konsultasi,
             'deskripsi' => $request->deskripsi,
         ]);
 
@@ -176,8 +216,12 @@ class KalenderController extends Controller
             }
             $adminName = $admin->name;
 
+            // Buat Zoom Meeting
             $zoomMeeting = $this->createZoomMeeting($event);
-            $event->zoom_link = $zoomMeeting;
+            if ($zoomMeeting) {
+                $event->zoom_link = $zoomMeeting;
+                $event->save();
+            }
 
             $refreshToken = $admin->google_refresh_token;
             $accessToken = $this->generateAccessTokenFromRefreshToken($refreshToken);
@@ -280,13 +324,19 @@ class KalenderController extends Controller
                 'end_date' => 'required|date|after:start_date',
                 'jenis_konsultasi' => 'nullable|string',
                 'deskripsi' => 'nullable|string',
+                'durasi_konsultasi' => 'nullable|integer|min:1',
             ]);
+
+            // Hitung durasi otomatis jika tidak diberikan
+            $duration = $request->input('durasi_konsultasi')
+                ?? $startDateTime->diffInMinutes($endDateTime);
 
             $eventData = [
                 'start_date' => $startDateTime,
                 'end_date' => $endDateTime,
                 'jenis_konsultasi' => $request->jenis_konsultasi,
                 'deskripsi' => $request->deskripsi,
+                'durasi_konsultasi' => $duration,
             ];
         }
 
@@ -385,7 +435,6 @@ class KalenderController extends Controller
             $event->delete();
             return response()->json(['success' => 'Event deleted successfully.']);
         }
-        // Hapus event dari database
         $event->delete();
         return response()->json(['success' => 'Event and associated Zoom meeting deleted successfully.']);
     }

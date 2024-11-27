@@ -3,33 +3,25 @@
     <h3>Jam Operasional</h3>
   </div>
   <div class="card-body">
-    @if (auth()->user()->role === 'admin')
+    {{-- @if (auth()->user()->role === 'admin')
       <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#jamOperasionalModal">Tambah</button>
-    @endif
+    @endif --}}
     <div class="table-responsive">
       <table class="table mb-0">
         <thead>
           @foreach ($jamOperasional as $jam)
             <tr>
-              <th style="width: 40%">
-                Tanggal: {{ $jam->tanggal_mulai? \Carbon\Carbon::parse($jam->tanggal_mulai)->locale('id')->translatedFormat('d F Y'): '' }} s/d
+              <th class="align-middle" style="width: 35%">
+                {{ $jam->tanggal_mulai? \Carbon\Carbon::parse($jam->tanggal_mulai)->locale('id')->translatedFormat('d F Y'): '' }} s/d
                 {{ $jam->tanggal_selesai? \Carbon\Carbon::parse($jam->tanggal_selesai)->locale('id')->translatedFormat('d F Y'): '' }}
-                </ths>
-              <th style="width: 15%">
+              </th>
+              <th class="align-middle" style="width: 20%">
+                {{ $jam->hari_mulai }} - {{ $jam->hari_selesai }} <br>
                 Jam : {{ $jam->jam_mulai? \Carbon\Carbon::parse($jam->jam_mulai)->locale('id')->format('H:i'): '' }} -
                 {{ $jam->jam_selesai? \Carbon\Carbon::parse($jam->jam_selesai)->locale('id')->format('H:i'): '' }}
               </th>
-              <th style="width: 20%" hidden>
-                Hari: {{ $jam->hari_mulai }} - {{ $jam->hari_selesai }}
-              </th>
-              <th class="align-middle text-end">
-                @if (auth()->user()->role === 'admin')
-                  <a href="#" class="btn icon icon-left btn-sm btn-primary">
-                    <i data-feather="edit"></i>
-                    Edit
-                  </a>
-                @endif
-              </th>
+              <th class="align-middle"></th>
+              <th class="align-middle text-end"></th>
             </tr>
           @endforeach
         </thead>

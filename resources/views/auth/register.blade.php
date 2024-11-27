@@ -6,16 +6,18 @@
   <div id="auth">
     <div class="row h-100">
       <div class="col-lg-5 col-12">
-        <div id="auth-left">
-          <div class="auth-logo">
-            <a href="#"><img src="{{ asset('./assets/compiled/svg/logo.svg') }}" alt="Logo" /></a>
+        <div id="auth-left" class="py-2">
+          <div class="auth-logo mb-5 mt-3">
+            <a href="#">
+              <img src="{{ asset('./assets/compiled/png/logo.png') }}" style="width: 200px; height: auto;" alt="Logo" />
+            </a>
           </div>
           <h1 class="auth-title">Sign Up</h1>
-          <p class="auth-subtitle mb-5">Input your data to register to our website.</p>
+          <p class="auth-subtitle mb-4">Input your data to register to our website.</p>
 
           <form method="POST" action="{{ route('register') }}">
             @csrf
-            <div class="form-group position-relative has-icon-left mb-4">
+            <div class="form-group position-relative has-icon-left mb-3">
               <input id="name" type="text" class="form-control form-control-xl @error('name') is-invalid @enderror" name="name"
                 value="{{ old('name') }}" placeholder="Nama Lengkap" required autocomplete="name">
               @error('name')
@@ -28,44 +30,7 @@
               </div>
             </div>
 
-            <div class="form-group position-relative has-icon-left mb-4">
-              <input id="perusahaan" type="text" class="form-control form-control-xl @error('perusahaan') is-invalid @enderror" name="perusahaan"
-                value="{{ old('perusahaan') }}" placeholder="Nama Perusahaan" required autocomplete="perusahaan">
-              @error('perusahaan')
-                <span class="invalid-feedback" role="alert">
-                  <strong>{{ $message }}</strong>
-                </span>
-              @enderror
-              <div class="form-control-icon">
-                <i class="bi bi-building"></i>
-              </div>
-            </div>
-            <div class="form-group position-relative has-icon-left mb-4">
-              <input id="alamat" type="text" class="form-control form-control-xl @error('alamat') is-invalid @enderror" name="alamat"
-                value="{{ old('alamat') }}" placeholder="Alamat" required autocomplete="alamat">
-              @error('alamat')
-                <span class="invalid-feedback" role="alert">
-                  <strong>{{ $message }}</strong>
-                </span>
-              @enderror
-              <div class="form-control-icon">
-                <i class="bi bi-geo-alt"></i>
-              </div>
-            </div>
-            <div class="form-group position-relative has-icon-left mb-4">
-              <input id="no_telp" type="text" class="form-control form-control-xl @error('no_telp') is-invalid @enderror" name="no_telp"
-                value="{{ old('no_telp') }}" placeholder="Nomor Telepon" required autocomplete="no_telp">
-              @error('no_telp')
-                <span class="invalid-feedback" role="alert">
-                  <strong>{{ $message }}</strong>
-                </span>
-              @enderror
-              <div class="form-control-icon">
-                <i class="bi bi-telephone"></i>
-              </div>
-            </div>
-
-            <div class="form-group position-relative has-icon-left mb-4">
+            <div class="form-group position-relative has-icon-left mb-3">
               <input id="email" type="email" class="form-control form-control-xl @error('email') is-invalid @enderror" name="email"
                 value="{{ old('email') }}" placeholder="Email" required autocomplete="email">
               @error('email')
@@ -77,35 +42,87 @@
                 <i class="bi bi-envelope"></i>
               </div>
             </div>
-            <div class="form-group position-relative has-icon-left mb-4">
-              <input id="password" type="password" class="form-control form-control-xl @error('password') is-invalid @enderror" name="password"
-                placeholder="Password" required autocomplete="new-password">
-              @error('password')
-                <span class="invalid-feedback" role="alert">
-                  <strong>{{ $message }}</strong>
-                </span>
-              @enderror
-              <div class="form-control-icon">
-                <i class="bi bi-shield-lock"></i>
+
+            <div class="form-group has-icon-left mb-3">
+              <div class="input-group">
+                <div class="position-relative col">
+                  <input id="password" type="password" class="form-control form-control-xl @error('password') is-invalid @enderror" name="password"
+                    placeholder="Password" required autocomplete="new-password">
+                  @error('password')
+                    <span class="invalid-feedback" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                  @enderror
+                  <div class="form-control-icon">
+                    <i class="bi bi-shield-lock"></i>
+                  </div>
+                </div>
+                <div class="input-group-text">
+                  <button type="button" class="btn btn-link" id="togglePassword1">
+                    <i class="bi bi-eye-fill" id="eyeIcon1"></i>
+                  </button>
+                </div>
               </div>
             </div>
-            <div class="form-group position-relative has-icon-left mb-4">
-              <input id="password-confirm" type="password" class="form-control form-control-xl" name="password_confirmation" required autocomplete="new-password"
-                placeholder="Confirm Password">
-              <div class="form-control-icon">
-                <i class="bi bi-shield-lock"></i>
+
+            <div class="form-group has-icon-left mb-3">
+              <div class="input-group">
+                <div class="position-relative col">
+                  <input id="password-confirm" type="password" class="form-control form-control-xl" name="password_confirmation" required
+                    autocomplete="new-password" placeholder="Confirm Password">
+                  <div class="form-control-icon">
+                    <i class="bi bi-shield-lock"></i>
+                  </div>
+                </div>
+                <div class="input-group-text">
+                  <button type="button" class="btn btn-link" id="togglePassword2">
+                    <i class="bi bi-eye-fill" id="eyeIcon2"></i>
+                  </button>
+                </div>
               </div>
             </div>
             <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign Up</button>
           </form>
-          <div class="text-center mt-5 text-lg fs-4">
+          <div class="text-center mt-3 text-lg fs-4">
             <p class="text-gray-600">Already have an account? <a href="{{ route('login') }}" class="font-bold">Log in</a>.</p>
           </div>
         </div>
       </div>
       <div class="col-lg-7 d-none d-lg-block">
-        <div id="auth-right"></div>
+        <div id="auth-right" class="position-relative">
+          <div class="position-absolute w-100 h-100">
+            <img src="{{ asset('./assets/compiled/svg/login-icon2.svg') }}" style="position: absolute; top: 60px; left: 100px; width: 480px; height: auto;"
+              alt="Logo" />
+            <img src="{{ asset('./assets/compiled/svg/login-icon.svg') }}" style="position: absolute; bottom: 0; right: 20px;" alt="Logo" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
+  <script>
+    // Toggle for password field
+    document.getElementById('togglePassword1').addEventListener('click', function() {
+      const passwordField = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon1');
+      togglePasswordVisibility(passwordField, eyeIcon);
+    });
+
+    // Toggle for confirm password field
+    document.getElementById('togglePassword2').addEventListener('click', function() {
+      const confirmPasswordField = document.getElementById('password-confirm');
+      const eyeIcon = document.getElementById('eyeIcon2');
+      togglePasswordVisibility(confirmPasswordField, eyeIcon);
+    });
+
+    // Function to toggle password visibility
+    function togglePasswordVisibility(field, icon) {
+      const type = field.getAttribute('type') === 'password' ? 'text' : 'password';
+      field.setAttribute('type', type);
+
+      // Toggle the eye icon
+      icon.classList.toggle('bi-eye-fill');
+      icon.classList.toggle('bi-eye-slash-fill');
+    }
+  </script>
 @endsection
