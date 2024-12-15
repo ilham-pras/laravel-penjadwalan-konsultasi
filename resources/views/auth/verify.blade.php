@@ -3,58 +3,34 @@
 @section('title', 'Verify Email')
 
 @section('content')
-  <div id="main" class="layout-horizontal navbar-fixed">
-    @include('layouts.navigation')
-
-    <div class="content-wrapper container">
-      <div class="page-heading">
-        <h3>Verify Email</h3>
-      </div>
-      <div class="page-content">
-        <section class="row">
-          <div class="col-12">
-            <div class="row">
-              <div class="col-12">
-                @if (session('resent'))
-                  <div class="alert alert-light-success color-success" role="alert">
-                    <i class="bi bi-check-circle"></i>
-                    {{ __(' A new verification link has been sent to your email address.') }}
-                  </div>
-                @endif
-                <div class="card">
-                  <div class="card-header">
-                    <h4>Verify Your Email Address</h4>
-                  </div>
-                  <div class="card-body">
-
-                    {{ __('Before proceeding, please check your email for a verification link.') }}
-                    {{ __('If you did not receive the email, click the button below.') }}
-                    <div>
-                      <form class="d-inline" method="POST" action="{{ route('verification.resend') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-primary mt-2 align-baseline">{{ __('Resend Verification Email') }}</button>.
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+  <div id="auth">
+    <div class="row h-100">
+      <div class="col-lg-5 col-12">
+        <div id="auth-left" class="py-2">
+          <div class="auth-logo mb-5 mt-3">
+            <a href="{{ route('home') }}">
+              <img src="{{ asset('./assets/compiled/png/logo.png') }}" style="width: 200px; height: auto;" alt="Logo" />
+            </a>
           </div>
-        </section>
+          <h1 class="auth-title fs-1 mb-5">Verify Your Email Address</h1>
+          <p class="auth-subtitle">Sebelum melanjutkan, harap periksa email Anda untuk link verifikasi.</p>
+          <p class="auth-subtitle">Jika Anda tidak menerima email, klik tombol di bawah.</p>
+          <form class="d-inline" method="POST" action="{{ route('verification.resend') }}">
+            @csrf
+            <button type="submit" class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Resend Verification Email</button>.
+          </form>
+        </div>
       </div>
-    </div>
 
-    <footer>
-      <div class="container">
-        <div class="footer clearfix mb-0 text-muted">
-          <div class="float-start">
-            <p>2023 &copy; Mazer</p>
-          </div>
-          <div class="float-end">
-            <p>Crafted with <span class="text-danger"><i class="bi bi-heart"></i></span> by <a href="https://saugi.me">Saugi</a></p>
+      <div class="col-lg-7 d-none d-lg-block">
+        <div id="auth-right" class="position-relative">
+          <div class="position-absolute w-100 h-100">
+            <img src="{{ asset('./assets/compiled/svg/login-icon2.svg') }}" style="position: absolute; top: 60px; left: 100px; width: 480px; height: auto;"
+              alt="Logo" />
+            <img src="{{ asset('./assets/compiled/svg/login-icon.svg') }}" style="position: absolute; bottom: 0; right: 20px;" alt="Logo" />
           </div>
         </div>
       </div>
-    </footer>
+    </div>
   </div>
 @endsection

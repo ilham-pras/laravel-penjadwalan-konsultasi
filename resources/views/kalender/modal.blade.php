@@ -139,7 +139,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger mr-auto" style="display: none" id="deleteEventBtn">Hapus Acara</button>
+        <button type="button" class="btn btn-danger mr-auto" style="display: none" id="deleteEventBtn">Hapus Booking</button>
         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" id="backToScheduleModal">Kembali</button>
         <button type="button" class="btn btn-primary" id="saveEventBtn">Simpan</button>
       </div>

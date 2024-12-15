@@ -31,8 +31,8 @@ class DatabaseSeeder extends Seeder
 
         $users = [
             [
-                'name' => 'Admin IMP',
-                'email' => 'gorengpisang196@gmail.com',
+                'name' => 'Admin ActionsID',
+                'email' => 'aactionsid@gmail.com',
                 'password' => bcrypt('admin123'),
                 'role' => 'admin',
                 'email_verified_at' => now(),
@@ -45,9 +45,9 @@ class DatabaseSeeder extends Seeder
         $profiles = [
             [
                 'user_id' => '1',
-                'perusahaan' => 'FI Studio',
-                'alamat' => 'Karang Ploso',
-                'no_telp' => '081xxxxxxx1',
+                'perusahaan' => 'Actions.id',
+                'alamat' => 'Malang Creative Center lt. 5 Jl. Ahmad Yani No.53, Blimbing, Kec. Blimbing, Kota Malang, Jawa Timur 65118',
+                'no_telp' => '081231000107',
                 'jenis_kelamin' => 'Laki-Laki',
             ],
         ];
@@ -57,8 +57,8 @@ class DatabaseSeeder extends Seeder
 
         $jams = [
             [
-                'tanggal_mulai' => '2024-11-18',
-                'tanggal_selesai' => '2024-12-08',
+                'tanggal_mulai' => '2024-12-09',
+                'tanggal_selesai' => '2024-12-23',
                 'hari_mulai' => 'Senin',
                 'hari_selesai' => 'Jumat',
                 'jam_mulai' => '09:00:00',
@@ -75,8 +75,12 @@ class DatabaseSeeder extends Seeder
                 'durasi' => '30',
             ],
             [
+                'konsultasi' => 'Keuangan',
+                'durasi' => '45',
+            ],
+            [
                 'konsultasi' => 'Sistem Informasi',
-                'durasi' => '60',
+                'durasi' => '90',
             ],
         ];
         foreach ($durasis as $durasi) {

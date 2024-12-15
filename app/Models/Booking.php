@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
-use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Event extends Model
+class Booking extends Model
 {
     use HasFactory;
 
-    protected $table = 'events';
-    
+    protected $table = 'bookings';
+
     protected $fillable = [
         'user_id',
         'start_date',

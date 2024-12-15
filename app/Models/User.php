@@ -23,9 +23,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
-        'google_id',
-        'google_access_token',
-        'google_refresh_token',
     ];
 
     /**
@@ -55,6 +52,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function zoom_tokens()
     {
         return $this->hasOne(ZoomToken::class);
+    
     }
-
+    public function google_calendar_tokens()
+    {
+        return $this->hasOne(GoogleCalendarToken::class);
+    }
 }

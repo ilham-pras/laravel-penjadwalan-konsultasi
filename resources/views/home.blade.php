@@ -3,13 +3,82 @@
 @section('title', 'Dashboard')
 
 @section('content')
+  @if (auth()->user()->role === 'admin')
+    @include('layouts.sidebar')
+  @endif
+
   <div id="main" class="layout-horizontal">
-    @include('layouts.navigation')
+    @if (auth()->user()->role === 'admin')
+      <header class="mb-4">
+        <nav class="navbar navbar-expand navbar-light navbar-top">
+          <div class="container-fluid">
+            <a href="#" class="burger-btn d-block">
+              <i class="bi bi-justify fs-3"></i>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+              aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ms-auto mb-lg-0"></ul>
+
+              <div class="dropdown">
+                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                  <div class="user-menu d-flex">
+                    <div class="user-name text-end me-2">
+                      <h6 class="mb-0 text-gray-600">{{ auth()->user()->name }}</h6>
+                      <p class="mb-0 text-sm text-gray-600">
+                        @if (auth()->user()->role === 'admin')
+                          Administrator
+                        @elseif (auth()->user()->role === 'user')
+                          Member
+                        @endif
+                      </p>
+                    </div>
+                    <div class="user-img d-flex align-items-center dropdown-toggle">
+                      <div class="avatar avatar-md">
+                        <img src="{{ asset('./assets/compiled/png/profile-picture.png') }}" alt="Profile Picture">
+                      </div>
+                    </div>
+                  </div>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" style="min-width: 11rem">
+                  <li>
+                    <h6 class="dropdown-header">Hello, {{ auth()->user()->name }}!</h6>
+                  </li>
+                  <li><a class="dropdown-item" href="{{ route('profile.index') }}"><i class="icon-mid bi bi-person me-2"></i>Profile</a></li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{{ route('logout') }}"
+                      onclick="event.preventDefault();
+                		  document.getElementById('logout-form').submit();">
+                      <i class="icon-mid bi bi-box-arrow-left me-2"></i>
+                      Logout
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                      @csrf
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </nav>
+      </header>
+    @elseif (auth()->user()->role === 'user')
+      @include('layouts.navigation')
+    @endif
 
     <div class="content-wrapper container">
       <div class="page-heading">
         <h3>Dashboard</h3>
       </div>
+
       <div class="page-content">
         <section class="row">
           <div class="col-12 col-lg-8">
@@ -28,15 +97,23 @@
                     <!-- Menampilkan pesan berdasarkan peran user -->
                     @if (auth()->user()->role === 'admin')
                       <p>Halo, Selamat datang {{ Auth::user()->name }}</p>
-                      @if (auth()->user()->google_id == null)
+
+                      <!-- Mengecek koneksi dengan Google Calendar -->
+                      @php
+                        $googleCalendarToken = DB::table('google_calendar_tokens')
+                            ->where('user_id', auth()->user()->id)
+                            ->first();
+                      @endphp
+                      @if (!$googleCalendarToken)
                         <div class=" py-2">
-                          <p>Anda belum terhubung dengan Google Calendar.</p>
+                          <p class="fw-bold">Anda belum terhubung dengan Google Calendar.</p>
                           <a href="{{ route('google.login') }}" class="btn btn-primary">Hubungkan Google Calendar</a>
                         </div>
                       @else
-                        Anda sudah terhubung dengan Google Calendar.
+                        <div class="fw-bold">Anda sudah terhubung dengan Google Calendar.</div>
                       @endif
 
+                      <!-- Mengecek koneksi dengan Zoom -->
                       @php
                         $zoomToken = DB::table('zoom_tokens')
                             ->where('user_id', auth()->user()->id)
@@ -44,11 +121,11 @@
                       @endphp
                       @if (!$zoomToken)
                         <div class="py-2">
-                          <p>Anda belum terhubung dengan Zoom.</p>
+                          <p class="fw-bold">Anda belum terhubung dengan Zoom.</p>
                           <a href="{{ route('zoom.connect') }}" class="btn btn-primary">Hubungkan Zoom</a>
                         </div>
                       @else
-                        <p>Anda sudah terhubung dengan Zoom.</p>
+                        <div class="fw-bold">Anda sudah terhubung dengan Zoom.</div>
                       @endif
                     @elseif (auth()->user()->role === 'user')
                       <p>Halo, Selamat datang {{ Auth::user()->name }}</p>
@@ -103,7 +180,7 @@
       <div class="container">
         <div class="footer clearfix mb-0 text-muted">
           <div class="float-start">
-            <p>2023 &copy; Mazer</p>
+            <p>Copyright &copy; 2024 by Mazer</p>
           </div>
           <div class="float-end">
             <p>Crafted with <span class="text-danger"><i class="bi bi-heart"></i></span> by <a href="https://saugi.me">Saugi</a></p>

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class ZoomController extends Controller
@@ -20,7 +19,6 @@ class ZoomController extends Controller
 
         return redirect($zoomAuthUrl);
     }
-
 
     public function handleZoomCallback(Request $request)
     {
@@ -68,5 +66,4 @@ class ZoomController extends Controller
             return redirect()->route('home')->with('error', 'Failed to connect Zoom account: ' . $e->getMessage());
         }
     }
-
 }

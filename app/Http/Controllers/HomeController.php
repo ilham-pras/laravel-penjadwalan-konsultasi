@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Event;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Booking;
 
 class HomeController extends Controller
 {
@@ -16,11 +14,16 @@ class HomeController extends Controller
     public function index()
     {
         if (auth()->user()->role === 'admin') {
-            $events = Event::orderBy('start_date', 'asc')->get();
+            $events = Booking::orderBy('start_date', 'asc')->get();
         } else {
-            $events = Event::where('user_id', auth()->id())->orderBy('start_date', 'asc')->get();
+            $events = Booking::where('user_id', auth()->id())->orderBy('start_date', 'asc')->get();
         }
 
         return view('home', compact('events'));
+    }
+
+    public function zoomEmail()
+    {
+        return view('emails.zoom-invitation');
     }
 }

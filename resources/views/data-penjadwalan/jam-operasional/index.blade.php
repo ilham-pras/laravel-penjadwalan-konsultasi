@@ -12,14 +12,21 @@
 
   <div id="main" class="layout-horizontal">
     <header class="mb-4">
-      <div class="header-top">
-        <div class="container justify-content-end">
-          <div class="row justify-content-start align-items-center"></div>
+      <nav class="navbar navbar-expand navbar-light navbar-top">
+        <div class="container-fluid">
+          <a href="#" class="burger-btn d-block">
+            <i class="bi bi-justify fs-3"></i>
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
 
-          <div class="header-top-right">
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-lg-0"></ul>
+
             <div class="dropdown">
-              <a href="#" id="topbarUserDropdown" class="user-dropdown d-flex align-items-center dropend dropdown-toggle" data-bs-toggle="dropdown"
-                aria-expanded="false">
+              <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
                 <div class="user-menu d-flex">
                   <div class="user-name text-end me-2">
                     <h6 class="mb-0 text-gray-600">{{ auth()->user()->name }}</h6>
@@ -31,22 +38,26 @@
                       @endif
                     </p>
                   </div>
+                  <div class="user-img d-flex align-items-center dropdown-toggle">
+                    <div class="avatar avatar-md">
+                      <img src="{{ asset('./assets/compiled/png/profile-picture.png') }}" alt="Profile Picture">
+                    </div>
+                  </div>
                 </div>
               </a>
 
-              <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="topbarUserDropdown" style="min-width: 11rem">
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" style="min-width: 11rem">
                 <li>
                   <h6 class="dropdown-header">Hello, {{ auth()->user()->name }}!</h6>
                 </li>
                 <li><a class="dropdown-item" href="{{ route('profile.index') }}"><i class="icon-mid bi bi-person me-2"></i>Profile</a></li>
-                <li><a class="dropdown-item" href="#"><i class="icon-mid bi bi-gear me-2"></i>Settings</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
                 <li>
                   <a class="dropdown-item" href="{{ route('logout') }}"
                     onclick="event.preventDefault();
-                document.getElementById('logout-form').submit();">
+                    document.getElementById('logout-form').submit();">
                     <i class="icon-mid bi bi-box-arrow-left me-2"></i>
                     Logout
                   </a>
@@ -56,14 +67,10 @@
                 </li>
               </ul>
             </div>
-
-            <!-- Burger button responsive -->
-            <a href="#" class="burger-btn d-block d-xl-none">
-              <i class="bi bi-justify fs-3"></i>
-            </a>
           </div>
+
         </div>
-      </div>
+      </nav>
     </header>
 
     <div class="content-wrapper container">
@@ -96,7 +103,7 @@
                       <th class="text-center">Tanggal</th>
                       <th class="text-center">Hari</th>
                       <th class="text-center" style="width: 20%">Jam</th>
-                      <th class="text-center" style="width: 15%">Action</th>
+                      <th class="text-center" style="width: 15%">Opsi</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -153,7 +160,7 @@
       <div class="container">
         <div class="footer clearfix mb-0 text-muted">
           <div class="float-start">
-            <p>2023 &copy; Mazer</p>
+            <p>Copyright &copy; 2024 by Mazer</p>
           </div>
           <div class="float-end">
             <p>Crafted with <span class="text-danger"><i class="bi bi-heart"></i></span> by <a href="https://saugi.me">Saugi</a></p>

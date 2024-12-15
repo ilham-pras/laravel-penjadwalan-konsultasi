@@ -18,8 +18,76 @@
 @endsection
 
 @section('content')
+  @if (auth()->user()->role === 'admin')
+    @include('layouts.sidebar')
+  @endif
+
   <div id="main" class="layout-horizontal">
-    @include('layouts.navigation')
+    @if (auth()->user()->role === 'admin')
+      <header class="mb-4">
+        <nav class="navbar navbar-expand navbar-light navbar-top">
+          <div class="container-fluid">
+            <a href="#" class="burger-btn d-block">
+              <i class="bi bi-justify fs-3"></i>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav ms-auto mb-lg-0"></ul>
+
+              <div class="dropdown">
+                <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                  <div class="user-menu d-flex">
+                    <div class="user-name text-end me-2">
+                      <h6 class="mb-0 text-gray-600">{{ auth()->user()->name }}</h6>
+                      <p class="mb-0 text-sm text-gray-600">
+                        @if (auth()->user()->role === 'admin')
+                          Administrator
+                        @elseif (auth()->user()->role === 'user')
+                          Member
+                        @endif
+                      </p>
+                    </div>
+                    <div class="user-img d-flex align-items-center dropdown-toggle">
+                      <div class="avatar avatar-md">
+                        <img src="{{ asset('./assets/compiled/png/profile-picture.png') }}" alt="Profile Picture">
+                      </div>
+                    </div>
+                  </div>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" style="min-width: 11rem">
+                  <li>
+                    <h6 class="dropdown-header">Hello, {{ auth()->user()->name }}!</h6>
+                  </li>
+                  <li><a class="dropdown-item" href="{{ route('profile.index') }}"><i class="icon-mid bi bi-person me-2"></i>Profile</a></li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{{ route('logout') }}"
+                      onclick="event.preventDefault();
+                		  document.getElementById('logout-form').submit();">
+                      <i class="icon-mid bi bi-box-arrow-left me-2"></i>
+                      Logout
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                      @csrf
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </nav>
+      </header>
+    @elseif (auth()->user()->role === 'user')
+      @include('layouts.navigation')
+    @endif
 
     <div class="content-wrapper container">
       <div class="page-heading">
@@ -31,14 +99,13 @@
             <div class="alert alert-primary">
               <p>Note:</p>
               <p>Silahkan klik kalender jika ingin membuat janji temu.</p>
-              <p>Sesuaikan dengan jam operasional.</p>
             </div>
 
             @include('kalender.jam-operasional')
             @include('kalender.modal')
 
-            <div class="card">
-              <div class="card-header">
+            <div class="card bg-white">
+              <div class="card-header bg-white">
                 <h4>Kalender Jadwal Konsultasi</h4>
               </div>
               <div class="card-body">
@@ -55,7 +122,7 @@
       <div class="container">
         <div class="footer clearfix mb-0 text-muted">
           <div class="float-start">
-            <p>2023 &copy; Mazer</p>
+            <p>Copyright &copy; 2024 by Mazer</p>
           </div>
           <div class="float-end">
             <p>Crafted with <span class="text-danger"><i class="bi bi-heart"></i></span> by <a href="https://saugi.me">Saugi</a></p>
@@ -85,6 +152,7 @@
       calendar = new FullCalendar.Calendar(calendarEl, {
         locale: 'id',
         initialView: 'dayGridMonth',
+        firstDay: 1,
         initialDate: new Date(),
         headerToolbar: {
           left: 'prev,next today',
@@ -97,6 +165,10 @@
           meridiem: false, // Menghilangkan AM/PM
           hour12: false // Format 24 jam
         },
+        dayHeaderFormat: {
+          weekday: 'long'
+        },
+        height: 900,
         events: booking.map(function(event) {
           return {
             id: event.id,
@@ -156,31 +228,29 @@
 
           // Menampilkan jadwal pengguna yang sekarang login
           var myTableBody = '';
-          if (filteredEvents.length > 0) {
-            filteredEvents.forEach((item, index) => {
-              if (item.extendedProps.user_id == currentUserId) {
-                myTableBody += `
-                  <tr>
-                    <td class="align-middle text-center">${index + 1}</td>
-                    <td class="align-middle">${item.extendedProps.nama_lengkap}</td>
-                    <td class="align-middle">${item.extendedProps.perusahaan}</td>
-                    <td class="align-middle">${item.extendedProps.jenis_konsultasi}</td>
-                    <td class="align-middle">
-                      ${moment(item.start).format('D MMMM YYYY')}
-                    </td>
-                    <td class="align-middle">
-                      ${moment(item.start).format('HH:mm')} - ${moment(item.end).format('HH:mm')}
-                    </td>
-                    <td class="align-middle text-center text-primary">
-                      ${item.extendedProps.zoom_link ? `<a href="${item.extendedProps.zoom_link}" class="text-decoration-none" target="_blank">Join Zoom Meeting</a>` : 'Tidak ada'}
-                    </td>
-                  </tr>`;
-              } else {
-                myTableBody = `<tr><td colspan="8" class="text-center py-3">-- Anda Tidak Memiliki Jadwal Konsultasi --</td></tr>`;
-              }
+          var userEvents = filteredEvents.filter(item => item.extendedProps.user_id == currentUserId);
+
+          if (userEvents.length > 0) {
+            userEvents.forEach((item, index) => {
+              myTableBody += `
+                <tr>
+                  <td class="align-middle text-center">${index + 1}</td>
+                  <td class="align-middle">${item.extendedProps.nama_lengkap}</td>
+                  <td class="align-middle">${item.extendedProps.perusahaan}</td>
+                  <td class="align-middle">${item.extendedProps.jenis_konsultasi}</td>
+                  <td class="align-middle">
+                    ${moment(item.start).format('D MMMM YYYY')}
+                  </td>
+                  <td class="align-middle">
+                    ${moment(item.start).format('HH:mm')} - ${moment(item.end).format('HH:mm')}
+                  </td>
+                  <td class="align-middle text-center text-primary">
+                    ${item.extendedProps.zoom_link ? `<a href="${item.extendedProps.zoom_link}" class="text-decoration-none" target="_blank">Join Zoom Meeting</a>` : 'Tidak ada'}
+                  </td>
+                </tr>`;
             });
           } else {
-            myTableBody = `<tr><td colspan="8" class="text-center py-3">-- Tidak Ada Jadwal Konsultasi --</td></tr>`;
+            myTableBody = `<tr><td colspan="7" class="text-center py-3">-- Anda Tidak Memiliki Jadwal Konsultasi --</td></tr>`;
           }
           $('#myEvent').html(myTableBody);
 
@@ -188,10 +258,10 @@
           var operasional = jamOperasional.find(op => {
             return clickedDate >= op.tanggal_mulai && clickedDate <= op.tanggal_selesai;
           });
-          // if (!operasional) {
-          //   Swal.fire('Maaf', 'Tanggal yang dipilih tidak memiliki jam operasional.', 'warning');
-          //   return;
-          // }
+          if (!operasional) {
+            Swal.fire('Maaf', 'Jam operasional tidak tersedia pada tanggal yang dipilih\n Tolong sesuaikan dengan yang ada.', 'warning');
+            return;
+          }
 
           const minTime = moment(operasional.jam_mulai, 'HH:mm:ss').format('HH:mm');
           const maxTime = moment(operasional.jam_selesai, 'HH:mm:ss').format('HH:mm');
@@ -297,7 +367,7 @@
                     jenis_konsultasi: response.jenis_konsultasi,
                     durasi_konsultasi: response.durasi_konsultasi,
                     deskripsi: response.deskripsi,
-                    zoom_link: response.zoom_link
+                    zoom_link: response.zoom_link,
                   },
                   backgroundColor: '#198754',
                   borderColor: '#198754',
@@ -306,8 +376,7 @@
 
                 Swal.fire({
                   title: 'Sukses!',
-                  html: 'Jadwal berhasil disimpan!<br><br>Zoom Link: <a href="' + response.zoom_link + '" target="_blank">' + response
-                    .zoom_link + '</a>',
+                  html: 'Jadwal berhasil disimpan!',
                   icon: 'success',
                   confirmButtonText: 'OK'
                 });
@@ -597,6 +666,8 @@
         modalReset();
         $('#saveEventBtn').unbind();
       });
+
+      $(".fc").css("background-color", "white");
     });
 
     function modalReset() {

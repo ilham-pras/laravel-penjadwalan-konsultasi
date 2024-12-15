@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Event;
+use App\Models\Booking;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Models\JamOperasional;
@@ -13,7 +13,7 @@ class KonsultasiController extends Controller
     public function index()
     {
         $events = [];
-        $event = Event::all();
+        $event = Booking::all();
 
         $profile = Profile::where('user_id', auth()->id())->first();
         $jamOperasional = JamOperasional::all();

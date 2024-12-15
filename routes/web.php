@@ -25,32 +25,31 @@ use Illuminate\Foundation\Auth\EmailVerificationNotification;
 |
 */
 
-// Route::get('/zoom/callback', [KalenderController::class, 'handleCallback']);
-Route::get('/zoom/connect', [ZoomController::class, 'redirectToZoom'])->name('zoom.connect');
-Route::get('/zoom/callback', [ZoomController::class, 'handleZoomCallback'])->name('zoom.callback');
-
-
-Auth::routes(['verify' => true]);
 
 Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::resource('profile', ProfileController::class);
+Auth::routes(['verify' => true]);
 
 Route::get('/email/verify', function () {
     return view('auth.verify');
 })->middleware('auth')->name('verification.notice');
 
 Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('home');
+Route::get('/zoomemail', [HomeController::class, 'zoomEmail']);
 
 
 // Admin Route
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::resource('kalender', KalenderController::class);
+    Route::resource('profile', ProfileController::class);
     Route::resource('data-penjadwalan/jam', JamOperasionalController::class);
     Route::resource('data-penjadwalan/jadwal', KonsultasiController::class);
     Route::resource('data-penjadwalan/jenis', DurasiKonsultasiController::class);
+
+    Route::get('/zoom/connect', [ZoomController::class, 'redirectToZoom'])->name('zoom.connect');
+    Route::get('/zoom/callback', [ZoomController::class, 'handleZoomCallback'])->name('zoom.callback');
 
     Route::get('/google/login', [SocialiteController::class, 'redirectOnGoogle'])->name('google.login');
     Route::get('/google/redirect', [SocialiteController::class, 'openGoogleAccountDetails'])->name('google.callback');
@@ -59,4 +58,5 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 // User Route
 Route::middleware(['auth', 'verified', 'role:user'])->group(function () {
     Route::resource('kalender', KalenderController::class);
+    Route::resource('profile', ProfileController::class);
 });

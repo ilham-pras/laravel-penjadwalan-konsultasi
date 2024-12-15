@@ -13,7 +13,7 @@
             </a>
           </div>
           <h1 class="auth-title">Lengkapi Biodata</h1>
-          <p class="auth-subtitle mb-4">Input your data to register to our website.</p>
+          <p class="auth-subtitle mb-4">Lengkapi biodata Anda untuk melanjutkan ke halaman berikutnya.</p>
 
           <form method="POST" action="{{ route('profile.store') }}">
             @csrf

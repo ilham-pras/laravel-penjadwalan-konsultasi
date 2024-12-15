@@ -13,7 +13,7 @@
             </a>
           </div>
           <h1 class="auth-title">Sign Up</h1>
-          <p class="auth-subtitle mb-4">Input your data to register to our website.</p>
+          <p class="auth-subtitle mb-4">Masukkan data Anda untuk mendaftar ke situs kami.</p>
 
           <form method="POST" action="{{ route('register') }}">
             @csrf

@@ -13,7 +13,7 @@
             </a>
           </div>
           <h1 class="auth-title">Log in.</h1>
-          <p class="auth-subtitle mb-4">Log in with your data that you entered during registration.</p>
+          <p class="auth-subtitle mb-4">Log in dengan data yang Anda masukkan saat pendaftaran.</p>
 
           <form method="POST" action="{{ route('login') }}">
             @csrf
