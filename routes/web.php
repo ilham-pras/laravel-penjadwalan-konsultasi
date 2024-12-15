@@ -37,7 +37,6 @@ Route::get('/email/verify', function () {
 })->middleware('auth')->name('verification.notice');
 
 Route::get('/home', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('home');
-Route::get('/zoomemail', [HomeController::class, 'zoomEmail']);
 
 
 // Admin Route

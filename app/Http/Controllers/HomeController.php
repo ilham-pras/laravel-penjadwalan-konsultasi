@@ -21,9 +21,4 @@ class HomeController extends Controller
 
         return view('home', compact('events'));
     }
-
-    public function zoomEmail()
-    {
-        return view('emails.zoom-invitation');
-    }
 }
